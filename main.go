@@ -6,6 +6,7 @@ import (
   "encoding/hex"
   "strconv"
   "bytes"
+  "strings"
 )
 
 func main(){
@@ -49,13 +50,11 @@ func saddr2IP(src []byte, size int) (string){
   return ip[:len(ip)-1] + " " + port
 }
 
-func NullHex2Strings(b []byte) (s []string) {
+func NullHex2Strings(b []byte) (s string) {
   for _, x := range bytes.Split(b, []byte("00")) {
-      s = append(s, DecodeHexStrings(x))
+      s = s + " " + DecodeHexStrings(x)
   }
-  if len(s) > 0 && s[len(s)-1] == "" {
-    s = s[:len(s)-1]
-  }
+  s = strings.TrimSpace(s)
   return
 }
 
