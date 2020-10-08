@@ -5,13 +5,12 @@ import (
   "os"
   "encoding/hex"
   "strconv"
-  "bytes"
   "strings"
 )
 
 func main(){
-  hex_input :=[]byte(os.Args[1])
-  switch prefix := string(hex_input[0:4]); prefix{
+  hex_input := string(os.Args[1])
+  switch prefix := hex_input[0:4]; prefix{
   case "0200":
     //Example: 02000050ACD901030000000000000000 (172.217.1.3:80)
     ip := saddr2IP(hex_input, len(hex_input))
@@ -27,10 +26,10 @@ func main(){
   }
 }
 
-func saddr2IP(src []byte, size int) (string){
+func saddr2IP(src string, size int) (string){
   var chunks []int64
   for i := 4; i <= 16; i+=2 {
-    n, _ := strconv.ParseInt(string(src[i:i+2]), 16, 64)
+    n, _ := strconv.ParseInt(src[i:i+2], 16, 64)
     chunks = append(chunks, n)
   }
   port := strconv.FormatInt(int64(256) * chunks[0] + chunks[1], 10)
@@ -44,17 +43,21 @@ func saddr2IP(src []byte, size int) (string){
   if size == int(56){
     //ipv6 is already in hex, just get the 8 chunks of 4
     for i := 16; i <= 44; i+=4 {
-      ip = ip + string(src[i:i+4]) + ":"
+      ip = ip + src[i:i+4] + ":"
     }
   }
   return ip[:len(ip)-1] + " " + port
 }
 
-func NullHex2Strings(b []byte) (s string) {
-  for _, x := range bytes.Split(b, []byte("00")) {
-      s = s + " " + DecodeHexStrings(x)
+func NullHex2Strings(b string) (s string) {
+  for i:=0; i<=len(b)-2;i+=2{
+    if b[i:i+2] == "00"{
+      s = s+"20"
+    }else{
+      s = s+b[i:i+2]
+    }
   }
-  s = strings.TrimSpace(s)
+  s = strings.TrimSpace(DecodeHexStrings([]byte(s)))
   return
 }
 
